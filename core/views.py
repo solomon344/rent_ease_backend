@@ -97,21 +97,49 @@ class PropertyCreateView(APIView):
     #     return Response({"message":"success"})
     
 
-class BookingView(APIView):
-
-    def get(self, request, *args, **kwargs):
-        id = request.query_params.get('id')
-        if id:
-            bookings = Booking.objects.get(id=id)
-        else:
-            bookings = Booking.objects.all()
-        serializer = BookingSerializer(bookings,many=True)
-        return Response(serializer.data)
-    
+class BookingCreateView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
-        print(data)
-        return Response({"message":"success"})
+        try:
+            booking = Booking.objects.create(
+            user = request.user,
+            property = Property.objects.get(id=data['id']),
+            start_date = data['start_date'],
+            end_date = data['end_date'],
+            guests = data['guests'],
+            total_price = data['total_price']
+            )
+            booking.save()
+            return Response({"message":"Booking Created Successfully"})
+        except Exception as e:
+            print(e)
+            return Response({"message":"Something went wrong"})
+
+class BookingAcceptView(APIView):
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        user = Profile.objects.get(user=request.user)
+        if user.role != 'seller':
+            return Response({"message":"You are not a seller","status":400})
+        
+        bookinId = data['id']
+        status = data['status']
+        
+        booking = Booking.objects.get(id=bookinId)
+        booking.status = status
+        booking.save()
+        serializer = BookingSerializer(booking)
+        if status == 'rejected':
+            return Response({"message":f"Booking from {booking.user.first_name} {booking.user.last_name} has been rejected",data:serializer.data})
+        return Response({"message":f"Booking from {booking.user.first_name} {booking.user.last_name} has been accepted",data:serializer.data})
+
+class BookingView(ListAPIView):
+    permission_classes = [IsAuthenticated,]
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user','property','id','status']
+        
 
 class AmentiesView(APIView):
     permission_classes = [AllowAny,]
