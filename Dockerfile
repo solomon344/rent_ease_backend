@@ -29,7 +29,7 @@ COPY . .
 
 # Collect static files using uv run
 
-ENV SECRET_KEY=${SECRET_KEY}
+
 RUN uv run --frozen python manage.py collectstatic --noinput
 
 # ============================================
