@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Confirmed - RentEase</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f6f7f8; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 40px 30px; text-align: center; }
+        .content { padding: 40px 30px; }
+        .success-icon { font-size: 48px; margin-bottom: 16px; }
+        .reservation-card { border: 2px solid #28a745; border-radius: 12px; padding: 24px; margin: 20px 0; background-color: #f8fff9; }
+        .property-image { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 16px; }
+        .booking-details { background-color: #f1f3f4; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; margin: 8px 0; }
+        .total-amount { font-size: 18px; font-weight: bold; color: #28a745; }
+        .important-info { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3; }
+        .contact-info { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .action-buttons { text-align: center; margin: 30px 0; }
+        .btn { display: inline-block; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; margin: 0 10px; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .footer { background-color: #f8f9fa; padding: 20px 30px; text-align: center; color: #6c757d; font-size: 14px; }
+        .celebration { text-align: center; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="celebration">🎉</div>
+            <h1 style="margin: 0; font-size: 28px;">Reservation Confirmed!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px;">Your booking has been approved</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="success-icon">✅</div>
+            <h2 style="text-align: center; color: #28a745; margin-bottom: 30px;">
+                Great news! Your reservation is confirmed.
+            </h2>
+
+            <!-- Reservation Details -->
+            <div class="reservation-card">
+                <img src="{{property_image}}" alt="{{property_name}}" class="property-image">
+
+                <h2 style="margin: 0 0 16px 0; color: #333;">{{property_name}}</h2>
+                <p style="color: #6c757d; margin-bottom: 16px;">📍 {{property_location}}</p>
+
+                <div class="booking-details">
+                    <div class="detail-row">
+                        <span>Check-in:</span>
+                        <strong>{{check_in_date}}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Check-out:</span>
+                        <strong>{{check_out_date}}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Guests:</span>
+                        <strong>{{number_of_guests}} guests</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Nights:</span>
+                        <strong>{{number_of_nights}} nights</strong>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #dee2e6; margin: 16px 0;">
+                    <div class="detail-row">
+                        <span style="font-size: 16px;">Total Amount:</span>
+                        <span class="total-amount">${{total_amount}}</span>
+                    </div>
+                </div>
+
+                {% if payment_link %}
+                <div class="action-buttons">
+                    <a href="{{payment_link}}" class="btn btn-primary">Complete Your Payment</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Important Information -->
+            <div class="important-info">
+                <h3 style="margin-top: 0; color: #1976d2;">📋 Important Information</h3>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong>Check-in:</strong> After {{check_in_time}} on {{check_in_date}}</li>
+                    <li><strong>Check-out:</strong> Before {{check_out_time}} on {{check_out_date}}</li>
+                    <li><strong>Address:</strong> {{property_address}}</li>
+                    <li><strong>Host:</strong> {{host_name}} ({{host_phone}})</li>
+                </ul>
+            </div>
+
+            <!-- Host Contact -->
+            <div class="contact-info">
+                <h3 style="margin-top: 0;">👋 Meet Your Host</h3>
+                <p><strong>{{host_name}}</strong></p>
+                <p>{{host_bio}}</p>
+                <p>📞 Phone: {{host_phone}} | ✉️ Email: {{host_email}}</p>
+            </div>
+
+            <!-- What to Expect -->
+            <div style="margin: 30px 0;">
+                <h3>What happens next?</h3>
+                <ol style="padding-left: 20px;">
+                    <li>You'll receive check-in instructions 24 hours before arrival</li>
+                    <li>Your host will confirm final details</li>
+                    <li>Enjoy your stay!</li>
+                    <li>Don't forget to leave a review after checkout</li>
+                </ol>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{{booking_details_url}}" class="btn btn-primary">📋 View Booking Details</a>
+                <a href="{{message_host_url}}" class="btn btn-secondary">💬 Message Host</a>
+            </div>
+
+            <p style="text-align: center; color: #6c757d; font-size: 14px;">
+                Need help? Contact us at <a href="mailto:support@rentease.com">support@rentease.com</a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>RentEase</strong> - Making property rental simple and secure</p>
+            <p>Questions about your booking? We're here to help!</p>
+            <p style="margin-top: 16px; font-size: 12px;">
+                © 2025 RentEase. All rights reserved.<br>
+                Booking ID: {{booking_id}} | Reservation Date: {{reservation_date}}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

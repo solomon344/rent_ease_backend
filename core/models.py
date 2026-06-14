@@ -37,8 +37,8 @@ class Property(models.Model):
     tags = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return self.title
-    
+        return self.name
+
 bookin_status = (
     ('pending', 'PENDING'),
     ('confirmed', 'CONFIRMED'),
@@ -54,10 +54,33 @@ class Booking(models.Model):
     guests = models.PositiveIntegerField(null=True, blank=True, default=1)
     end_date = models.DateField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_intent_id = models.CharField(max_length=200, blank=True, null=True)
+    payment_link = models.URLField(max_length=600, blank=True, null=True)
+    payment_state_choices = (
+        ('pending', 'PENDING'),
+        ('requires_payment', 'REQUIRES_PAYMENT'),
+        ('paid', 'PAID'),
+        ('failed', 'FAILED'),
+    )
+    payment_state = models.CharField(max_length=20, choices=payment_state_choices, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.property.title}"
+        return f"{self.user.username} - {self.property.name}"
 
 
-    
+class PropertyMedia(models.Model):
+    MEDIA_TYPES = (
+        ('image', 'Image'),
+        ('video', 'Video'),
+    )
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='media')
+    url = models.CharField(max_length=600)
+    type = models.CharField(max_length=10, choices=MEDIA_TYPES, default='image')
+    order = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.type} - {self.property.name}"
+
+
+
