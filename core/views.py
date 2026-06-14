@@ -71,7 +71,7 @@ def create_modempay_intent(booking, guest):
     currency = getattr(settings, 'MODEM_PAYMENT_CURRENCY', 'GMD')
     payment_methods = getattr(settings, 'MODEM_PAYMENT_METHODS', 'card').split(',')
     frontend_url = settings.FRONTEND_URL.rstrip('/')
-    backend_url = settings.BACKEND_URL.rstrip('/')
+    # backend_url = settings.BACKEND_URL.rstrip('/')
     payload = {
         'amount': int(round(float(booking.total_price))),
         'currency': currency,
@@ -82,7 +82,7 @@ def create_modempay_intent(booking, guest):
         },
         'return_url': f"{frontend_url}/payment/verify?booking_id={booking.id}",
         'cancel_url': f"{frontend_url}/bookings?payment=cancelled",
-        'callback_url': f"{backend_url}/api/v1/booking/payment/callback/",
+        # 'callback_url': f"{backend_url}/api/v1/booking/payment/callback/",
         'payment_methods': payment_methods,
         'title': f"RentEase Booking #{booking.id}",
         'skip_url_validation': True
@@ -112,7 +112,7 @@ def verify_modempay_event(request):
         print("signature",signature)
         # print("MODEM_WEBHOOK_SECRET",settings.MODEM_WEBHOOK_SECRET)
         Modempay = get_modempay_client()
-        event = Modempay.webhooks.compose_event_details(payload, signature, settings.MODEM_API_KEY)
+        event = Modempay.webhooks.compose_event_details(payload, signature, settings.MODEM_WEBHOOK_SECRET)
         return event
     except Exception as exc:
         raise ValueError(f"ModemPay signature verification failed: {exc}")
