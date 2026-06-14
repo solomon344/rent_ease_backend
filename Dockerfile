@@ -28,8 +28,9 @@ COPY --from=dependencies /app/.venv /app/.venv
 COPY . .
 
 # Collect static files using uv run
-
-
+# SECRET_KEY is required for Django to run collectstatic
+ARG SECRET_KEY=dummy-secret-key-for-build
+ENV SECRET_KEY=${SECRET_KEY}
 RUN uv run --frozen python manage.py collectstatic --noinput
 
 # ============================================
