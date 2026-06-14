@@ -27,8 +27,8 @@ COPY --from=dependencies /app/.venv /app/.venv
 # Copy project files
 COPY . .
 
-# Collect static files
-RUN .venv/bin/python manage.py collectstatic --noinput
+# Collect static files using uv run
+RUN uv run --frozen python manage.py collectstatic --noinput
 
 # ============================================
 # Stage 3: Runtime
