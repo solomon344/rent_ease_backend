@@ -90,4 +90,4 @@ CMD ["gunicorn", \
      "--error-logfile", "-", \
      "--capture-output", \
      "--enable-stdio-inheritance", \
-     "rent_ease_backend.wsgi:application"]
+     "rentease_backend.wsgi:application"]
