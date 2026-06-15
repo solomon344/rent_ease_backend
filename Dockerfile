@@ -27,11 +27,11 @@ COPY --from=dependencies /app/.venv /app/.venv
 # Copy project files
 COPY . .
 
-# Collect static files using uv run
+
 # SECRET_KEY is required for Django to run collectstatic
 ARG SECRET_KEY=dummy-secret-key-for-build
 ENV SECRET_KEY=${SECRET_KEY}
-RUN uv run --frozen python manage.py collectstatic --noinput
+
 
 # ============================================
 # Stage 3: Runtime
@@ -56,8 +56,6 @@ WORKDIR /app
 # Copy virtual environment from dependencies stage
 COPY --from=dependencies /app/.venv /app/.venv
 
-# Copy static files from builder stage
-COPY --from=builder /app/staticfiles /app/staticfiles
 
 # Copy application code
 COPY . .
