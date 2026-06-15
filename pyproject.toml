@@ -17,4 +17,5 @@ dependencies = [
     "markdown>=3.10",
     "modempay>=1.0.4",
     "pillow>=12.1.0",
+    "psycopg2-binary>=2.9.12",
 ]
