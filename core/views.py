@@ -66,11 +66,12 @@ def get_modempay_client():
     return ModemPay(api_key=api_key)
 
 
-def create_modempay_intent(booking, guest):
+def create_modempay_intent(booking: Booking, guest):
     Modempay = get_modempay_client()
     currency = getattr(settings, 'MODEM_PAYMENT_CURRENCY', 'GMD')
     payment_methods = getattr(settings, 'MODEM_PAYMENT_METHODS', 'card').split(',')
     frontend_url = settings.FRONTEND_URL.rstrip('/')
+    import hashlib
     # backend_url = settings.BACKEND_URL.rstrip('/')
     payload = {
         'amount': int(round(float(booking.total_price))),
@@ -89,6 +90,7 @@ def create_modempay_intent(booking, guest):
     }
 
     response = Modempay.payment_intents.create(payload)
+    
     if isinstance(response, dict):
         data = response.get('data', {})
     else:
@@ -477,12 +479,12 @@ class PaymentCallbackView(APIView):
 
         try:
             modempay_client = get_modempay_client()
-            transaction = modempay_client.transactions.retrieve(transaction_id)
+            transaction = modempay_client.transactions.list({'search':transaction_id})[0]
         except Exception as exc:
             logger.error('ModemPay transaction retrieval failed for transaction_id %s: %s', transaction_id, exc, exc_info=True)
             return Response({"message": "Failed to retrieve transaction details from payment provider"}, status=500)
 
-        if transaction and transaction.status == 'successful':
+        if transaction and transaction.get('status') == 'successful':
             booking.payment_state = 'paid'
             booking.status = 'confirmed'
             booking.payment_intent_id = transaction_id
