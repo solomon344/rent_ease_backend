@@ -98,24 +98,17 @@ def create_modempay_intent(booking, guest):
 
 
 def verify_modempay_event(request):
-    signature = request.headers.get('x-modem-signature')
-    if not signature:
-        raise ValueError("Missing ModemPay signature header")
-
+    transaction_id = request.GET.get('transaction_id')
+    
     try:
-        payload = json.loads(request.body.decode('utf-8'))
-    except Exception:
-        payload = request.data if hasattr(request, 'data') else {}
-
-    try:
-        print("payload",payload)
-        print("signature",signature)
+        print("payload",transaction_id)
         # print("MODEM_WEBHOOK_SECRET",settings.MODEM_WEBHOOK_SECRET)
         Modempay = get_modempay_client()
-        event = Modempay.webhooks.compose_event_details(payload, signature, settings.MODEM_WEBHOOK_SECRET)
-        return event
+        transaction = Modempay.transactions.retrieve(transaction_id)
+        if transaction:
+            return transaction
     except Exception as exc:
-        raise ValueError(f"ModemPay signature verification failed: {exc}")
+        raise ValueError(f"ModemPay transaction verification failed: {exc}")
 
 
 def calculate_nights(start_date, end_date):
@@ -467,37 +460,56 @@ class PaymentCallbackView(APIView):
     authentication_classes = []
 
     def post(self, request, *args, **kwargs):
+        booking_id = request.data.get('booking_id')
+        transaction_id = request.data.get('transaction_id')
+
+        if not booking_id or not transaction_id:
+            return Response({"message": "booking_id and transaction_id are required"}, status=400)
+
         try:
-            event = verify_modempay_event(request)
-        except Exception as exc:
-            logger.error('Invalid ModemPay callback: %s', exc, exc_info=True)
-            return Response({"message": "Invalid signature or payload"}, status=400)
-
-        payload = getattr(event, 'payload', {})
-        event_name = getattr(event, 'event', None)
-        payment_intent_id = payload.get('payment_intent_id') or payload.get('id')
-        metadata = payload.get('metadata', {}) or {}
-        booking_id = metadata.get('booking_id')
-
-        booking = None
-        if payment_intent_id:
-            booking = Booking.objects.filter(payment_intent_id=payment_intent_id).first()
-        if not booking and booking_id:
-            booking = Booking.objects.filter(id=booking_id).first()
-
-        if not booking:
-            logger.warning('ModemPay callback received for unknown booking: %s %s', booking_id, payment_intent_id)
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            logger.warning('Payment callback received for unknown booking ID: %s', booking_id)
             return Response({"message": "Booking not found"}, status=404)
 
-        if event_name in ['charge.succeeded', 'payment_intent.succeeded']:
+        try:
+            modempay_client = get_modempay_client()
+            transaction = modempay_client.transactions.retrieve(transaction_id)
+        except Exception as exc:
+            logger.error('ModemPay transaction retrieval failed for transaction_id %s: %s', transaction_id, exc, exc_info=True)
+            return Response({"message": "Failed to retrieve transaction details from payment provider"}, status=500)
+
+        if transaction and transaction.status == 'successful':
             booking.payment_state = 'paid'
             booking.status = 'confirmed'
-            booking.save()
-        elif event_name in ['charge.failed', 'payment_intent.failed', 'payment_intent.cancelled', 'payment_intent.expired']:
-            booking.payment_state = 'failed'
+            booking.payment_intent_id = transaction_id
             booking.save()
 
-        return Response({"received": True})
+            # Send email to property owner
+            owner = booking.property.owner.user
+            frontend_url = settings.FRONTEND_URL.rstrip('/')
+            safe_send_html_email(
+                subject="Payment Received for Your RentEase Property",
+                recipient_list=[owner.email],
+                template_name="payment-received-owner.html", # Assuming a new template for payment received
+                context={
+                    'property_image': booking.property.image or '',
+                    'property_name': booking.property.name,
+                    'guest_name': f"{booking.user.first_name} {booking.user.last_name}".strip(),
+                    'guest_email': booking.user.email,
+                    'check_in_date': booking.start_date,
+                    'check_out_date': booking.end_date,
+                    'total_amount': booking.total_price,
+                    'booking_id': booking.id,
+                    'transaction_id': transaction_id,
+                    'view_booking_url': f"{frontend_url}/dashboard/reservations",
+                },
+            )
+            return Response({"message": "Payment verified and booking confirmed", "paid": True})
+        else:
+            booking.payment_state = 'failed'
+            booking.save()
+            return Response({"message": "Payment verification failed", "paid": False})
         
 
 class AmentiesView(APIView):
