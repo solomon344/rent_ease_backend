@@ -479,7 +479,8 @@ class PaymentCallbackView(APIView):
 
         try:
             modempay_client = get_modempay_client()
-            transaction = modempay_client.transactions.list({'search':transaction_id})[0]
+            transaction = modempay_client.transactions.list({'search':transaction_id, 'limit':1})
+            transaction = transaction.get('data')[0]
         except Exception as exc:
             logger.error('ModemPay transaction retrieval failed for transaction_id %s: %s', transaction_id, exc, exc_info=True)
             return Response({"message": "Failed to retrieve transaction details from payment provider"}, status=500)
