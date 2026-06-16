@@ -491,7 +491,7 @@ class PaymentCallbackView(APIView):
             safe_send_html_email(
                 subject="Payment Received for Your RentEase Property",
                 recipient_list=[owner.email],
-                template_name="payment-received-owner.html", # Assuming a new template for payment received
+                template_name="payment-received-owner.html",
                 context={
                     'property_image': booking.property.image or '',
                     'property_name': booking.property.name,
@@ -505,6 +505,23 @@ class PaymentCallbackView(APIView):
                     'view_booking_url': f"{frontend_url}/dashboard/reservations",
                 },
             )
+
+            # Send receipt email to the user (guest)
+            safe_send_html_email(
+                subject="Payment Receipt - Your RentEase booking is confirmed",
+                recipient_list=[booking.user.email],
+                template_name="payment-received-user.html",
+                context={
+                    'property_image': booking.property.image or '',
+                    'property_name': booking.property.name,
+                    'check_in_date': booking.start_date,
+                    'check_out_date': booking.end_date,
+                    'total_amount': booking.total_price,
+                    'booking_id': booking.id,
+                    'transaction_id': transaction_id,
+                },
+            )
+
             return Response({"message": "Payment verified and booking confirmed", "paid": True})
         else:
             booking.payment_state = 'failed'
@@ -722,6 +739,27 @@ class PasswordResetConfirmView(APIView):
         except Exception as e:
             logger.error(f"Password reset failed: {str(e)}", exc_info=True)
             return Response({"message": "Failed to reset password. Please try again."}, status=500)
+
+
+class BookingDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        booking_id = request.data.get('id')
+
+        if not booking_id:
+            return Response({"message": "Booking ID is required"}, status=400)
+
+        try:
+            booking = Booking.objects.get(id=booking_id, user=request.user)
+        except Booking.DoesNotExist:
+            return Response({"message": "Booking not found or you don't have permission to delete it"}, status=404)
+
+        if booking.status in ['cancelled', 'rejected']:
+            booking.delete()
+            return Response({"message": "Booking deleted successfully"}, status=204)
+        else:
+            return Response({"message": "Booking can only be deleted if it is cancelled or rejected"}, status=400)
 
 
 class PasswordResetValidateTokenView(APIView):

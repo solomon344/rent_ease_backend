@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - RentEase</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f6f7f8; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; padding: 40px 30px; text-align: center; }
+        .content { padding: 40px 30px; }
+        .receipt-card { border: 1px solid #e1e5e9; border-radius: 12px; padding: 24px; margin: 20px 0; background-color: #f8f9fa; }
+        .property-image { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 16px; }
+        .booking-details { background-color: #f1f3f4; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; margin: 8px 0; }
+        .total-amount { font-size: 18px; font-weight: bold; color: #28a745; }
+        .footer { background-color: #f8f9fa; padding: 20px 30px; text-align: center; color: #6c757d; font-size: 14px; }
+        .highlight { background-color: #d4edda; padding: 16px; border-radius: 8px; border-left: 4px solid #28a745; margin: 20px 0; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 style="margin: 0; font-size: 28px;">💰 Payment Confirmed!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px;">Your payment has been successfully processed.</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="highlight">
+                <strong>Confirmed:</strong> Your booking payment has been verified and your reservation is now confirmed.
+            </div>
+
+            <!-- Receipt Details -->
+            <div class="receipt-card">
+                <img src="{{property_image}}" alt="{{property_name}}" class="property-image">
+
+                <h2 style="margin: 0 0 16px 0; color: #333;">{{property_name}}</h2>
+
+                <div class="booking-details">
+                    <div class="detail-row">
+                        <span>Booking ID:</span>
+                        <strong>{{booking_id}}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Transaction ID:</span>
+                        <strong>{{transaction_id}}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Check-in:</span>
+                        <strong>{{check_in_date}}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Check-out:</span>
+                        <strong>{{check_out_date}}</strong>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #dee2e6; margin: 16px 0;">
+                    <div class="detail-row">
+                        <span style="font-size: 16px;">Total Amount Paid:</span>
+                        <span class="total-amount">${{total_amount}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #6c757d; font-size: 14px;">
+                Thank you for choosing RentEase. Your booking has been confirmed!
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>RentEase</strong> - Making property rental simple and secure</p>
+            <p>Questions? Contact our support team at <a href="mailto:support@rentease.com">support@rentease.com</a></p>
+            <p style="margin-top: 16px; font-size: 12px;">
+                © 2025 RentEase. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+</parameter>
+<parameter=task_progress>
+- [x] All previous tasks completed.
+- [x] Fixed useEffect dependency issue to prevent aggressive API calls.
+- [x] Create payment receipt template for user (guest).
+- [ ] Modify PaymentCallbackView to send receipt email to guest.
+</task_progress>
+</write_to_file>

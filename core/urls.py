@@ -20,6 +20,7 @@ urlpatterns = [
     path('booking/cancel/', views.BookingCancelView.as_view(), name='booking-cancel'),
     path('booking/create/', views.BookingCreateView.as_view(), name='booking-create'),
     path('booking/status/', views.BookingAcceptView.as_view(), name='booking-accept'),
+    path('booking/delete/', views.BookingDeleteView.as_view(), name='booking-delete'),
     path('booking/payment/verify/', views.BookingPaymentVerifyView.as_view(), name='booking-payment-verify'),
     path('booking/payment/callback/', views.PaymentCallbackView.as_view(), name='payment-callback'),
     path('token/', views.LogInView.as_view(), name='token_obtain_pair'),
