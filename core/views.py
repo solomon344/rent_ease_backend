@@ -463,8 +463,11 @@ class PaymentCallbackView(APIView):
         booking_id = request.data.get('booking_id')
         transaction_id = request.data.get('transaction_id')
 
-        if not booking_id or not transaction_id:
-            return Response({"message": "booking_id and transaction_id are required"}, status=400)
+        if not booking_id:
+            return Response({"message": "booking_id is required"}, status=400)
+
+        if not transaction_id:
+            return Response({"message": "transaction_id is required"}, status=400)
 
         try:
             booking = Booking.objects.get(id=booking_id)
