@@ -487,7 +487,7 @@ class PaymentCallbackView(APIView):
             logger.error('ModemPay transaction retrieval failed for transaction_id %s: %s', transaction_id, exc, exc_info=True)
             return Response({"message": "Failed to retrieve transaction details from payment provider"}, status=500)
 
-        if transaction and transaction.get('status') == 'successful':
+        if transaction and transaction.get('status') == 'completed':
             booking.payment_state = 'paid'
             booking.status = 'confirmed'
             booking.payment_intent_id = transaction_id
