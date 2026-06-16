@@ -17,8 +17,12 @@ ENV DJANGO_SETTINGS_MODULE=rentease_backend.settings
 
 
 
+
+
 # Copy application code
 COPY . .
+
+RUN uv run manage.py collectstatic --no-input
 
 EXPOSE 8000
 

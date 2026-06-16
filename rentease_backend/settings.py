@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
     'rest_framework_simplejwt',
+    'whitenoise',
     'corsheaders',
     'core',
 ]
@@ -165,6 +166,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_FILES_DIRS = [
+    BASE_DIR / 'static'
+]
 
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
@@ -254,3 +258,4 @@ SIMPLE_JWT = {
 }
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
+
