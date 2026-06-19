@@ -721,9 +721,42 @@ class UserView(APIView):
 
 class UserMeView(APIView):
     permission_classes = [IsAuthenticated,]
+
     def get(self, request, *args, **kwargs):
-        users = User.objects.get(id=request.user.id)
-        profile = Profile.objects.get(user=users)
+        user = User.objects.get(id=request.user.id)
+        profile = Profile.objects.get(user=user)
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(id=request.user.id)
+        profile = Profile.objects.get(user=user)
+
+        # Update user fields if provided
+        
+        
+        if 'first_name' in request.data:
+            user.first_name = request.data['first_name'] 
+       
+        if 'last_name' in request.data:
+            user.last_name = request.data['last_name']
+        
+        user.save()
+
+        # Update profile image if provided
+        if 'image' in request.data:
+            profile.picture = request.data['image']
+            profile.save()
+
+        # Update session data
+        request.session['user'] = {
+            'id': user.id,
+            'email': user.email,
+            'name': f"{user.first_name} {user.last_name}",
+            'image': profile.picture,
+            'role': profile.role
+        }
+
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
 
@@ -779,16 +812,21 @@ class GoogleAuthView(APIView):
             refresh = RefreshToken.for_user(user)
         except Exception as e:
             return Response({"message":"Could not create JWT","error":str(e)}, status=500)
+        
+        
 
         user_info = {
             'sub': idinfo.get('sub'),
             'email': email,
             'email_verified': idinfo.get('email_verified'),
             'name': idinfo.get('name'),
-            'picture': idinfo.get('picture'),
         }
 
         profile = Profile.objects.get(user=user)
+        if profile.picture.strip() == '':
+            profile.picture = idinfo.get('picture')
+            profile.save()
+        user_info['image'] = profile.picture
         user_info['role'] = profile.role
         user_info['phone'] = profile.phone
         # user_info['profile'] = ProfileSerializer(profile).data
