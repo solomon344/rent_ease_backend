@@ -9,7 +9,7 @@ from core.seeds import amenities_seed, superuser_seed, property_seed
 def main():
     amenities_seed()
     # superuser_seed()
-    # property_seed()
+    property_seed()
 
 if __name__ == "__main__":
     main()

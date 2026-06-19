@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -31,4 +31,9 @@ urlpatterns = [
     path('auth/password-reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('auth/password-reset/confirm/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('auth/password-reset/validate-token/', views.PasswordResetValidateTokenView.as_view(), name='password-reset-validate-token'),
+    path('payouts/', include([
+        path('', views.PayoutViewSet.as_view({'get': 'list'}), name='payout-list'),
+        path('create/', views.PayoutViewSet.as_view({'post': 'create'}), name='payout-create'),
+        path('last/', views.PayoutViewSet.as_view({'get': 'last'}), name='payout-last'),
+    ])),
 ]

@@ -15,7 +15,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-    
+
 class Amenties(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -24,10 +24,32 @@ class Amenties(models.Model):
         return self.name
 
 class Property(models.Model):
+    LOCATION_CHOICES = [
+        ('Banjul', 'Banjul'),
+        ('Kololi', 'Kololi'),
+        ('Kotu', 'Kotu'),
+        ('Fajara', 'Fajara'),
+        ('Brufut', 'Brufut'),
+        ('Serekunda', 'Serekunda'),
+        ('Bakau', 'Bakau'),
+        ('Banjul West', 'Banjul West'),
+        ('Banjul East', 'Banjul East'),
+        ('Banjul North', 'Banjul North'),
+        ('Banjul South', 'Banjul South'),
+        ('Brikama', 'Brikama'),
+        ('Janjanbureh', 'Janjanbureh'),
+        ('Kanifing', 'Kanifing'),
+        ('Kerewan', 'Kerewan'),
+        ('Kuntaur', 'Kuntaur'),
+        ('Mansakonko', 'Mansakonko'),
+        ('Sukuta', 'Sukuta'),
+        ('Yundum', 'Yundum'),
+    ]
+
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='properties')
     name = models.CharField(max_length=100)
     description = models.TextField()
-    location = models.CharField(max_length=100)
+    location = models.CharField(max_length=100, choices=LOCATION_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.CharField(max_length=600, blank=True, null=True)
     beds = models.PositiveIntegerField()
@@ -68,6 +90,25 @@ class Booking(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.property.name}"
 
+class Payout(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payouts')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    mobile_money_number = models.CharField(max_length=20)
+    payment_method = models.CharField(max_length=20, choices=[
+        ('wave', 'Wave'),
+        ('afrimoney', 'Afrimoney'),
+    ])
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ], default='pending')
+    transaction_id = models.CharField(max_length=200, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} - {self.status}"
 
 class PropertyMedia(models.Model):
     MEDIA_TYPES = (
@@ -81,6 +122,3 @@ class PropertyMedia(models.Model):
 
     def __str__(self):
         return f"{self.type} - {self.property.name}"
-
-
-
